@@ -509,7 +509,7 @@ kbd{background:var(--bg3);border:1px solid var(--border2);padding:3px 8px;border
       </div>
       <div class="si-item">
         <div class="si-label">Background</div>
-        <select class="si" id="bgSt"><option value="dark">Dark Grid</option><option value="space">Deep Space</option><option value="arena">Arena</option><option value="minimal">Minimal</option></select>
+        <select class="si" id="bgSt"><option value="wall" selected>Practice Range Wall</option><option value="dark">Dark Grid</option><option value="space">Deep Space</option><option value="arena">Arena</option><option value="minimal">Minimal</option></select>
       </div>
     </div>
   </div>
@@ -704,6 +704,12 @@ kbd{background:var(--bg3);border:1px solid var(--border2);padding:3px 8px;border
       <div class="ra-title">📊 Performance Analysis</div>
       <div class="ra-text" id="rAnalysis"></div>
       <div class="pbars" id="rBars"></div>
+    </div>
+
+    <div class="coach-card">
+      <div class="coach-top"><div class="coach-title">✦ Coach's Plan</div><div class="coach-badge">ADAPTIVE</div></div>
+      <div class="coach-body"><div class="coach-next" id="rCoachTask">Next drill</div><div class="coach-copy" id="rCoachCopy">Complete a session to unlock your next focused drill.</div></div>
+      <button class="coach-btn" id="btnCoachNext">Queue next drill →</button>
     </div>
 
     <div class="sg">
