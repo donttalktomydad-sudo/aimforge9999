@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AimForge – Valorant Aim Trainer</title>
+<title>Flickrx – Valorant Aim Trainer</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -37,6 +37,13 @@ canvas{display:block;}
   background:radial-gradient(circle,rgba(255,70,85,.14),rgba(255,70,85,.035) 34%,transparent 68%);
   animation:loaderPulse 2.8s ease-in-out infinite;
 }
+#loadingScreen .loader::before{
+  content:'';position:absolute;inset:-90px -170px;pointer-events:none;
+  border:1px solid rgba(255,70,85,.08);
+  border-radius:50%;box-shadow:0 0 80px rgba(255,70,85,.08),inset 0 0 80px rgba(0,212,255,.035);
+  animation:loaderOrbit 7s ease-in-out infinite;
+}
+@keyframes loaderOrbit{0%,100%{transform:rotate(-3deg) scale(.98)}50%{transform:rotate(3deg) scale(1.02)}}
 #loadingScreen.is-hidden{opacity:0;visibility:hidden;pointer-events:none;}
 #loadingScreen.is-hidden .loader{transform:translateY(-12px) scale(1.035);opacity:0;}
 @keyframes loaderGrid{from{background-position:0 0,0 0;}to{background-position:0 42px,42px 0;}}
@@ -55,15 +62,24 @@ canvas{display:block;}
 .loader-title{font-size:1.6rem;font-weight:900;letter-spacing:4px;color:#fff;text-shadow:0 0 24px rgba(255,255,255,.16);}
 .loader-title span{color:var(--red);}
 .loader-copy{font-size:.65rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted2);}
-.loader-bar{width:188px;height:4px;border-radius:4px;overflow:hidden;background:rgba(255,255,255,.08);box-shadow:inset 0 1px 2px rgba(0,0,0,.5);}
-.loader-bar::after{content:'';display:block;width:38%;height:100%;border-radius:inherit;background:linear-gradient(90deg,transparent,#ff6474,#fff0f2,#ff6474,transparent);box-shadow:0 0 13px #ff4655;animation:loaderSweep 1.65s cubic-bezier(.45,0,.55,1) infinite;}
+.loader-status{display:flex;align-items:center;gap:9px;font-size:.52rem;letter-spacing:2px;color:#8e9abd;opacity:.9;}
+.loader-status span{width:6px;height:6px;border-radius:50%;background:#00ff9d;box-shadow:0 0 12px #00ff9d;animation:statusPulse 1s ease-in-out infinite;}
+.loader-status b{font-weight:800;}
+.loader-status em{font-style:normal;color:#ff7280;margin-left:3px;}
+@keyframes statusPulse{0%,100%{transform:scale(.7);opacity:.5}50%{transform:scale(1.2);opacity:1}}
+.loader-bar{width:260px;height:5px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.06);box-shadow:inset 0 1px 2px rgba(0,0,0,.5),0 0 25px rgba(255,70,85,.08);position:relative;}
+.loader-bar::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);animation:loaderScan 1.8s linear infinite;}
+.loader-bar::after{content:'';display:block;width:38%;height:100%;border-radius:inherit;background:linear-gradient(90deg,transparent,#ff6474,#fff0f2,#ff6474,transparent);box-shadow:0 0 13px #ff4655;animation:loaderSweep 1.35s cubic-bezier(.45,0,.55,1) infinite;}
+.loader-bar i{position:absolute;left:0;top:0;bottom:0;width:1px;background:#fff;box-shadow:0 0 12px #fff;animation:loaderTick 1.35s ease-in-out infinite;}
+@keyframes loaderScan{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+@keyframes loaderTick{0%{left:5%;opacity:0}18%{opacity:1}80%{opacity:1}100%{left:96%;opacity:0} }
 @keyframes loaderSweep{from{transform:translateX(-115%);}to{transform:translateX(380%);}}
 @media (prefers-reduced-motion:reduce){#loadingScreen::before,#loadingScreen::after,.loader-mark::before,.loader-mark::after,.loader-bar::after{animation:none;}}
 
 /* ══ SCROLLABLE SCREEN ══ */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;}
 #menuScreen{background:transparent;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:clamp(20px,5vh,50px) clamp(12px,3vw,20px);align-items:center;justify-content:flex-start;}
-.menu-inner{display:flex;flex-direction:column;align-items:center;width:100%;max-width:800px;padding-bottom:clamp(28px,7vh,60px);gap:16px;}
+.menu-inner{display:flex;flex-direction:column;align-items:center;width:100%;max-width:1440px;padding-bottom:clamp(28px,7vh,60px);gap:16px;}
 
 /* ══ LOGO ══ */
 .logo-section{text-align:center;padding:10px 0 4px;}
@@ -403,17 +419,94 @@ kbd{background:var(--bg3);border:1px solid var(--border2);padding:3px 8px;border
   .rh{padding:24px 34px 18px;}.rank-ring{width:100px;height:100px;margin-bottom:10px;}.rank-img{width:76px;height:76px;}.rb{padding:18px 28px 26px;}
 }
 @media (max-width:380px){.mgrid{grid-template-columns:1fr;}.tbtn{flex-basis:40%;}.cps{gap:4px;}.cp{width:21px;height:21px;}.stags{gap:5px;}.stag{padding:4px 7px;font-size:.59rem;}}
+
+/* ══ FLICKRX MENU ATMOSPHERE + SMOOTH MOTION ══ */
+#menuScreen::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(circle at 15% 20%,rgba(255,70,85,.14),transparent 30%),
+    radial-gradient(circle at 85% 15%,rgba(0,212,255,.11),transparent 28%),
+    radial-gradient(circle at 50% 90%,rgba(124,92,255,.10),transparent 35%),
+    linear-gradient(135deg,#050611 0%,#090d1b 48%,#050710 100%);
+  animation:menuAurora 12s ease-in-out infinite alternate;
+}
+#menuScreen::after{
+  content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;opacity:.28;
+  background-image:
+    linear-gradient(rgba(125,145,210,.08) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(125,145,210,.08) 1px,transparent 1px);
+  background-size:58px 58px;
+  transform:perspective(900px) rotateX(62deg) translateY(18%);
+  mask-image:radial-gradient(ellipse at center,#000 0%,transparent 72%);
+  animation:menuGrid 18s linear infinite;
+}
+@keyframes menuAurora{0%{filter:hue-rotate(0deg);transform:scale(1)}100%{filter:hue-rotate(18deg);transform:scale(1.035)}}
+@keyframes menuGrid{from{background-position:0 0,0 0}to{background-position:58px 29px,-29px 58px}}
+.menu-inner{animation:menuEnter .65s cubic-bezier(.22,1,.36,1) both;}
+@keyframes menuEnter{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+.card,.training-intro,.start-btn,.menu-tabs{transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s ease,border-color .35s ease;}
+.card:hover{transform:translateY(-2px);box-shadow:0 16px 55px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.05);}
+.mgrid{
+  display:flex;flex-wrap:nowrap;gap:12px;align-items:stretch;justify-content:flex-start;
+  overflow-x:auto;overflow-y:hidden;padding:6px 4px 14px;
+  scroll-snap-type:x proximity;scrollbar-width:thin;overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.mgrid .mc{
+  flex:0 0 138px;min-width:138px;width:138px;scroll-snap-align:start;
+  min-height:250px;padding:17px 11px;
+  display:flex;flex-direction:column;align-items:center;
+  transition:transform .28s cubic-bezier(.22,1,.36,1),border-color .28s ease,box-shadow .28s ease,background .28s ease;
+}
+.mgrid .mc-icon{font-size:1.7rem;line-height:1;margin-bottom:10px;}
+.mgrid .mc-name{font-size:.76rem;line-height:1.15;min-height:2.2em;display:flex;align-items:center;justify-content:center;}
+.mgrid .mc-desc{font-size:.60rem;line-height:1.45;flex:1;}
+.mgrid .mc-diff{font-size:.52rem;margin-top:10px;padding:3px 8px;white-space:nowrap;}
+.mgrid::-webkit-scrollbar{height:6px;}
+.mgrid::-webkit-scrollbar-track{background:rgba(255,255,255,.025);border-radius:99px;}
+.mgrid::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#ff4655,#ff7b87);border-radius:99px;box-shadow:0 0 10px rgba(255,70,85,.35);}
+.mgrid::after{content:"";flex:0 0 1px;}
+.mgrid .mc:nth-child(1){animation:taskIn .45s .02s both}.mgrid .mc:nth-child(2){animation:taskIn .45s .04s both}
+.mgrid .mc:nth-child(3){animation:taskIn .45s .06s both}.mgrid .mc:nth-child(4){animation:taskIn .45s .08s both}
+.mgrid .mc:nth-child(5){animation:taskIn .45s .10s both}.mgrid .mc:nth-child(6){animation:taskIn .45s .12s both}
+.mgrid .mc:nth-child(7){animation:taskIn .45s .14s both}.mgrid .mc:nth-child(8){animation:taskIn .45s .16s both}
+.mgrid .mc:nth-child(9){animation:taskIn .45s .18s both}.mgrid .mc:nth-child(10){animation:taskIn .45s .20s both}
+.mgrid .mc:nth-child(11){animation:taskIn .45s .22s both}.mgrid .mc:nth-child(12){animation:taskIn .45s .24s both}
+.mgrid .mc:nth-child(13){animation:taskIn .45s .26s both}.mgrid .mc:nth-child(14){animation:taskIn .45s .28s both}
+@keyframes taskIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+.mc:hover{transform:translateY(-6px) scale(1.015);}
+.mc.on{transform:translateY(-3px) scale(1.01);}
+.start-btn::after{
+  content:"";position:absolute;top:0;bottom:0;width:34%;left:-40%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:skewX(-18deg);animation:buttonShine 3.8s ease-in-out infinite;
+}
+@keyframes buttonShine{0%,55%{left:-45%}75%,100%{left:125%}}
+@media(max-width:1100px){
+  .menu-inner{max-width:calc(100vw - 28px);}
+  .mgrid{justify-content:flex-start;}
+  .mgrid .mc{flex:0 0 138px;min-width:138px;width:138px;}
+}
+@media(max-width:620px){
+  .mgrid{gap:9px;}
+  .mgrid .mc{flex-basis:132px;min-width:132px;width:132px;min-height:238px;padding:16px 10px;}
+}
+@media(prefers-reduced-motion:reduce){
+  #menuScreen::before,#menuScreen::after,.menu-inner,.mgrid .mc,.start-btn::after{animation:none!important;}
+}
+
 </style>
 </head>
 <body>
 <canvas id="bgCanvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></canvas>
 
-<div id="loadingScreen" role="status" aria-live="polite" aria-label="Loading AimForge">
+<div id="loadingScreen" role="status" aria-live="polite" aria-label="Loading Flickrx">
   <div class="loader">
     <div class="loader-mark">🎯</div>
-    <div class="loader-title"><span>Aim</span>Forge</div>
-    <div class="loader-copy">Calibrating your aim arena</div>
-    <div class="loader-bar"></div>
+    <div class="loader-title"><span>Fli</span>ckrx</div>
+    <div class="loader-copy">Calibrating your Flickrx arena</div>
+    <div class="loader-status"><span></span><b>INITIALIZING AIM CORE</b><em>14 TASKS</em></div>
+    <div class="loader-bar"><i></i></div>
   </div>
 </div>
 
@@ -422,12 +515,12 @@ kbd{background:var(--bg3);border:1px solid var(--border2);padding:3px 8px;border
 <div class="menu-inner">
 
   <div class="logo-section">
-    <div class="logo"><span class="r">Aim</span>Forge</div>
+    <div class="logo"><span class="r">Fli</span>ckrx</div>
     <div class="logo-tag">Valorant Precision Trainer</div>
     <div class="logo-divider"></div>
   </div>
 
-  <div class="menu-tabs" role="tablist" aria-label="AimForge menu">
+  <div class="menu-tabs" role="tablist" aria-label="Flickrx menu">
     <button class="menu-tab active" type="button" role="tab" aria-selected="true" aria-controls="trainingPane" data-tab="training">🎯 Training</button>
     <button class="menu-tab" type="button" role="tab" aria-selected="false" aria-controls="settingsPane" data-tab="settings">⚙ Settings</button>
   </div>
@@ -633,7 +726,7 @@ kbd{background:var(--bg3);border:1px solid var(--border2);padding:3px 8px;border
 
   <!-- MODES -->
   <div class="card training-card">
-    <div class="card-title">🎮 Aim Tasks <span class="task-count">10 TASKS</span></div>
+    <div class="card-title">🎮 Aim Tasks <span class="task-count">14 TASKS</span><span style="margin-left:auto;color:#596784;font-size:.5rem;letter-spacing:1.2px;">SCROLL →</span></div>
     <div class="mgrid">
       <div class="mc on" data-m="gridshot"><span class="mc-icon">🎯</span><div class="mc-name">Gridshot</div><div class="mc-desc">6 targets. Hit one, it respawns. Pure speed.</div><div class="mc-diff de">EASY</div></div>
       <div class="mc" data-m="flicking"><span class="mc-icon">⚡</span><div class="mc-name">Flicking</div><div class="mc-desc">Snap to 1 distant target fast.</div><div class="mc-diff dm">MEDIUM</div></div>
@@ -647,6 +740,8 @@ kbd{background:var(--bg3);border:1px solid var(--border2);padding:3px 8px;border
       <div class="mc" data-m="reflex"><span class="mc-icon">⏱️</span><div class="mc-name">Reflex</div><div class="mc-desc">One target. One second. React before it vanishes.</div><div class="mc-diff dh">HARD</div></div>
       <div class="mc" data-m="spray"><span class="mc-icon">〰️</span><div class="mc-name">Spray Control</div><div class="mc-desc">Hold fire on a dummy. Pull down against the recoil pattern.</div><div class="mc-diff dm">MEDIUM</div></div>
       <div class="mc" data-m="transfer"><span class="mc-icon">⇢</span><div class="mc-name">Spray Transfer</div><div class="mc-desc">Kill a bot, transfer across the range, spray the next.</div><div class="mc-diff dh">HARD</div></div>
+      <div class="mc" data-m="movetrack"><span class="mc-icon">🏃</span><div class="mc-name">Move Track</div><div class="mc-desc">Track a moving target while strafing. Keep your aim steady.</div><div class="mc-diff dm">MEDIUM</div></div>
+      <div class="mc" data-m="strafeFlick"><span class="mc-icon">⚡</span><div class="mc-name">Strafe Flick</div><div class="mc-desc">Move left and right, then snap onto targets between each direction change.</div><div class="mc-diff dh">HARD</div></div>
     </div>
   </div>
 
@@ -719,8 +814,25 @@ kbd{background:var(--bg3);border:1px solid var(--border2);padding:3px 8px;border
 
     <div class="coach-card">
       <div class="coach-top"><div class="coach-title">✦ Coach's Plan</div><div class="coach-badge">ADAPTIVE</div></div>
-      <div class="coach-body"><div class="coach-next" id="rCoachTask">Next drill</div><div class="coach-copy" id="rCoachCopy">Complete a session to unlock your next focused drill.</div></div>
+      <div class="coach-body">
+        <div class="coach-next" id="rCoachTask">Next drill</div>
+        <div class="coach-copy" id="rCoachCopy">Complete a session to unlock your next focused drill.</div>
+      </div>
+      <div class="coach-diagnosis">
+        <div class="diag"><span class="diag-icon">◈</span><div><b id="rWeakness">Primary weakness</b><small id="rWeaknessWhy">Your session data will appear here.</small></div></div>
+        <div class="diag"><span class="diag-icon">↗</span><div><b id="rCorrection">Correction</b><small id="rCorrectionText">Your coach will turn the result into one actionable adjustment.</small></div></div>
+        <div class="diag"><span class="diag-icon">◆</span><div><b id="rRoutine">Practice routine</b><small id="rRoutineText">A short repeatable drill will be suggested.</small></div></div>
+      </div>
       <button class="coach-btn" id="btnCoachNext">Queue next drill →</button>
+    </div>
+
+    <div class="coach-strip" id="coachStrip">
+      <div class="coach-strip-head"><span>SESSION READOUT</span><i id="rTrend">BASELINE</i></div>
+      <div class="coach-strip-grid">
+        <div><span>WHAT YOU DID</span><b id="rDid">—</b></div>
+        <div><span>WHAT TO CHANGE</span><b id="rChange">—</b></div>
+        <div><span>WHEN TO STOP</span><b id="rStop">—</b></div>
+      </div>
     </div>
 
     <div class="sg">
@@ -757,6 +869,7 @@ kbd{background:var(--bg3);border:1px solid var(--border2);padding:3px 8px;border
 // BG PARTICLES
 // ══════════════════════════════════════
 const bgC=document.getElementById('bgCanvas');
+const menuScreen=document.getElementById('menuScreen');
 const bgX=bgC.getContext('2d');
 let bgW=bgC.width=innerWidth,bgH=bgC.height=innerHeight;
 window.addEventListener('resize',()=>{bgW=bgC.width=innerWidth;bgH=bgC.height=innerHeight;resize();});
@@ -768,7 +881,8 @@ const stars=Array.from({length:120},()=>({
 }));
 
 function animBG(t){
-  if(typeof G!=='undefined'&&G.running){requestAnimationFrame(animBG);return;}
+  if(typeof G!=='undefined'&&G.running){bgC.style.opacity='0';requestAnimationFrame(animBG);return;}
+  bgC.style.opacity='1';
   bgX.clearRect(0,0,bgW,bgH);
   for(const s of stars){
     s.x+=s.vx;s.y+=s.vy;
@@ -824,7 +938,7 @@ const RANKS=[
 ];
 
 function calcRank(acc,kps,avgT,mode){
-  const T={spray:{s:6},transfer:{s:5},gridshot:{s:8},flicking:{s:6},microshot:{s:4},speed:{s:7},scatter:{s:9},tracking:{s:8},strafeshot:{s:5},spidershot:{s:7},switchshot:{s:6},reflex:{s:5}}[mode]||{s:6};
+  const T={spray:{s:6},transfer:{s:5},gridshot:{s:8},flicking:{s:6},microshot:{s:4},speed:{s:7},scatter:{s:9},tracking:{s:8},strafeshot:{s:5},spidershot:{s:7},switchshot:{s:6},reflex:{s:5},movetrack:{s:7},strafeFlick:{s:6}}[mode]||{s:6};
   const score=Math.min(kps/T.s,1)*.5+(acc/100)*.35+(avgT>0?Math.max(0,1-(avgT-150)/650):.5)*.15;
   let ri=0;
   for(let i=RANKS.length-1;i>=0;i--){if(score>=RANKS[i].min){ri=i;break;}}
@@ -914,7 +1028,7 @@ document.querySelectorAll('.tbtn').forEach(b=>{
   b.addEventListener('click',()=>{document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');dur=parseInt(b.dataset.t);});
 });
 
-const MODE_LABELS={spray:'Spray Control',transfer:'Spray Transfer',gridshot:'Gridshot',flicking:'Flicking',microshot:'Microshot',tracking:'Tracking',speed:'Speed Aim',scatter:'Scatter',strafeshot:'Strafe Shot',spidershot:'Spider Shot',switchshot:'Switch Shot',reflex:'Reflex'};
+const MODE_LABELS={spray:'Spray Control',transfer:'Spray Transfer',gridshot:'Gridshot',flicking:'Flicking',microshot:'Microshot',tracking:'Tracking',speed:'Speed Aim',scatter:'Scatter',strafeshot:'Strafe Shot',spidershot:'Spider Shot',switchshot:'Switch Shot',reflex:'Reflex',movetrack:'Move Track',strafeFlick:'Strafe Flick'};
 const modeLabel=mode=>MODE_LABELS[mode]||mode;
 let selMode='gridshot';
 document.querySelectorAll('.mc').forEach(c=>{
@@ -1046,7 +1160,7 @@ $('clickOverlay').addEventListener('click',reqLock);
 // ══════════════════════════════════════
 // GAME STATE
 // ══════════════════════════════════════
-let G={mode:'',running:false,paused:false,dur:30,timeLeft:30,score:0,hits:0,misses:0,streak:0,bestStreak:0,reactTimes:[],lastHit:0,yaw:0,pitch:0,targets:[],effects:[],tracers:[],raf:null,pt:0,bloom:0};
+let G={mode:'',running:false,paused:false,dur:30,timeLeft:30,score:0,hits:0,misses:0,streak:0,bestStreak:0,reactTimes:[],lastHit:0,yaw:0,pitch:0,targets:[],effects:[],tracers:[],raf:null,pt:0,bloom:0,trackTime:0};
 
 // ══════════════════════════════════════
 // 3D
@@ -1074,6 +1188,8 @@ const MCFG={
   scatter:{n:10,wr:.26,sp:50,d:10,mv:false},
   tracking:{n:1,wr:.38,sp:0,d:10,mv:true},
   strafeshot:{n:1,wr:.29,sp:26,pRange:10,d:10,mv:true,motion:'strafe',yawLimit:40,pitchLimit:10},
+  movetrack:{n:1,wr:.34,sp:0,pRange:14,d:11,mv:true,motion:'moveTrack',yawLimit:42,pitchLimit:16,track:true},
+  strafeFlick:{n:1,wr:.29,sp:20,pRange:12,d:11,mv:true,motion:'strafeFlick',yawLimit:43,pitchLimit:14,flipEvery:680},
   spidershot:{n:8,wr:.18,sp:58,d:10,mv:false},
   switchshot:{n:2,wr:.25,sp:58,d:10,mv:false},
   spray:{n:1,wr:.3,sp:0,pRange:.001,d:14,mv:false,auto:true},
@@ -1089,6 +1205,13 @@ function mkTarget(mode,avYaw){
   const t={wY:ty,wP:tp,wr:cfg.wr*S.tSzMul,d:cfg.d,st:performance.now(),ttl:cfg.ttl||null,_p:null,_rz:999,vY:0,vP:0,sc:0};
   if(cfg.motion==='strafe'){
     t.vY=(Math.random()<.5?-1:1)*30*S.tSpdMul;
+  }else if(cfg.motion==='moveTrack'){
+    t.vY=(Math.random()<.5?-1:1)*(16+Math.random()*7)*S.tSpdMul;
+    t.vP=(Math.random()<.5?-1:1)*(3+Math.random()*3)*S.tSpdMul;
+  }else if(cfg.motion==='strafeFlick'){
+    t.vY=(Math.random()<.5?-1:1)*(22+Math.random()*8)*S.tSpdMul;
+    t.vP=(Math.random()-.5)*4*S.tSpdMul;
+    t.flipAt=performance.now()+(cfg.flipEvery||680);
   }else if(cfg.mv){
     t.vY=(Math.random()-.5)*18*S.tSpdMul;t.vP=(Math.random()-.5)*9*S.tSpdMul;
   }
@@ -1208,11 +1331,12 @@ function drawSpray(now,dt){
 // ══════════════════════════════════════
 $('startBtn').addEventListener('click',()=>{
   S.sens=parseFloat($('sensInput').value)||0.4;
-  Object.assign(G,{mode:selMode,running:false,paused:false,dur,timeLeft:dur,score:0,hits:0,misses:0,streak:0,bestStreak:0,reactTimes:[],lastHit:0,yaw:0,pitch:0,targets:[],effects:[],tracers:[],pt:0,bloom:0});
+  Object.assign(G,{mode:selMode,running:false,paused:false,dur,timeLeft:dur,score:0,hits:0,misses:0,streak:0,bestStreak:0,reactTimes:[],lastHit:0,yaw:0,pitch:0,targets:[],effects:[],tracers:[],pt:0,bloom:0,trackTime:0});
   gsStarted=false;isLocked=false;
   hide('menuScreen');hide('resultScreen');
   show('gc');show('hud');show('badge');
   $('badge').textContent=modeLabel(selMode).toUpperCase();
+  $('hStreak').textContent=selMode==='movetrack'?'Track Time 0.0s':'Streak 0';
   $('sPop').style.opacity='0';
   updateHUD();
   $('coIcon').textContent='🎯';
@@ -1331,6 +1455,7 @@ function onHit(t,sx,sy,sr){
   const mode=G.mode,i=G.targets.indexOf(t);
   if(['gridshot','scatter','speed','strafeshot','spidershot','reflex'].includes(mode))G.targets[i]=mkTarget(mode);
   else if(['flicking','microshot','switchshot'].includes(mode))G.targets[i]=mkTarget(mode,t.wY);
+  else if(mode==='strafeFlick')G.targets[i]=mkTarget(mode);
   updateHUD();
 }
 
@@ -1446,20 +1571,47 @@ function loop(now){
       G.targets.forEach((t,i)=>{if(n-t.st>t.ttl){G.targets[i]=mkTarget(G.mode);onMiss();}});
     }
 
-    if(G.mode==='tracking'){
+    if(modeCfg.track || G.mode==='tracking'){
       const cx=canvas.width/2,cy=canvas.height/2;
       G.targets.forEach(t=>{
         if(!t._p)return;
         const{sx,sy,scl}=t._p;
-        if(Math.hypot(sx-cx,sy-cy)<=t.wr*scl){G.score+=Math.round(dt*500);G._hd=1;}
+        const lockedOn=Math.hypot(sx-cx,sy-cy)<=t.wr*scl;
+        if(lockedOn){
+          const gain=modeCfg.track?700:500;
+          G.score+=Math.round(dt*gain);
+          G.trackTime=(G.trackTime||0)+dt;
+          G._hd=1;
+          t.trackPulse=Math.min(1,(t.trackPulse||0)+dt*5);
+        }else{
+          t.trackPulse=Math.max(0,(t.trackPulse||0)-dt*4);
+        }
       });
+    }
+
+    if(G.mode==='strafeFlick'){
+      const n=performance.now();
+      for(const t of G.targets){
+        if(n>=t.flipAt){
+          t.flipAt=n+(MCFG[G.mode].flipEvery||680);
+          t.vY*=-1;
+          t.vP=(Math.random()-.5)*6*S.tSpdMul;
+          t.st=n;
+          t.sc=0;
+          G._hd=1;
+        }
+      }
     }
 
     for(const t of G.targets)if(!(t.wait>performance.now()))t.sc=Math.min(1,(t.sc||0)+dt*14);
     if(S.xDyn)G.bloom=Math.max(0,G.bloom-dt*25);
     if(MCFG[G.mode].auto)stepSpray(dt,performance.now());
     mVel*=.78;
-    if(G._hd&&now-(G._hu2||0)>100){G._hu2=now;G._hd=0;updateHUD();}
+    if(G._hd&&now-(G._hu2||0)>100){
+      G._hu2=now;G._hd=0;
+      if(G.mode==='movetrack')$('hStreak').textContent='Track Time '+(G.trackTime||0).toFixed(1)+'s';
+      updateHUD();
+    }
 
     if(now-(G._hu||0)>100){G._hu=now;
     const pct=(G.timeLeft/G.dur)*100;
@@ -1563,7 +1715,36 @@ function drawBG(W,H){
 }
 
 function drawTgt(t){
-  if(!MCFG[G.mode].auto){drawTgt0(t);return;}
+  if(!MCFG[G.mode].auto){
+    drawTgt0(t);
+    if((G.mode==='movetrack'||G.mode==='strafeFlick')&&t._p){
+      const p=t._p,r=t.wr*p.scl*Math.min(t.sc||0,1),now=performance.now();
+      const pulse=.5+.5*Math.sin(now*.006);
+      ctx.save();
+      if(G.mode==='movetrack'){
+        const on=t.trackPulse||0;
+        ctx.strokeStyle=`rgba(0,255,170,${.16+.48*on})`;
+        ctx.lineWidth=1.5+on*1.8;
+        ctx.setLineDash([7,9]);
+        ctx.beginPath();ctx.arc(p.sx,p.sy,r+10+pulse*4,0,Math.PI*2);ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha=.32+.2*pulse;
+        ctx.strokeStyle='#00d4ff';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(p.sx-r*2.2,p.sy);ctx.lineTo(p.sx+r*2.2,p.sy);ctx.stroke();
+      }else{
+        const dir=t.vY>=0?1:-1;
+        ctx.globalAlpha=.38+.22*pulse;ctx.strokeStyle='#ff8792';ctx.lineWidth=1.5;
+        ctx.setLineDash([5,7]);
+        ctx.beginPath();ctx.moveTo(p.sx-dir*r*2.7,p.sy);ctx.lineTo(p.sx-dir*r*5.2,p.sy);ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha=.7;ctx.fillStyle='#ff6474';
+        ctx.beginPath();
+        ctx.moveTo(p.sx+dir*r*2.5,p.sy);ctx.lineTo(p.sx+dir*r*3.5,p.sy-r*.55);ctx.lineTo(p.sx+dir*r*3.5,p.sy+r*.55);ctx.closePath();ctx.fill();
+      }
+      ctx.restore();
+    }
+    return;
+  }
   const p=t._p;if(!p)return;
   const act=G.mode!=='transfer'||t===G.active;
   ctx.save();ctx.globalAlpha=act?1:.5;drawTgt0(t);ctx.restore();
@@ -1688,6 +1869,149 @@ function updateHUD(){
   $('hKPS').textContent=(G.hits/Math.max(G.dur-G.timeLeft,.01)).toFixed(1)+' k/s';
 }
 
+
+
+// Lightweight local trend memory for coaching (last 8 completed sessions).
+function saveCoachHistory(record){
+  try{
+    const key='flickrx_coach_history_v1';
+    const h=JSON.parse(localStorage.getItem(key)||'[]');
+    h.push(record);while(h.length>8)h.shift();
+    localStorage.setItem(key,JSON.stringify(h));
+    return h;
+  }catch(e){return []}
+}
+// ══════════════════════════════════════
+// ADAPTIVE COACHING
+// Turns raw session metrics into one clear correction + a drill.
+// ══════════════════════════════════════
+function buildCoach({acc,kps,avgT,consValue,bestT,tot,hp}){
+  const mode=G.mode;
+  const auto=!!MCFG[mode].auto;
+  const tracking=(mode==='tracking'||mode==='movetrack');
+  let task='Gridshot', reason='', correction='', routine='', weakness='', stop='', trend='BASELINE', did='—', change='—';
+
+  if(tracking){
+    const track=G.trackTime||0;
+    if(track<4){
+      weakness='Tracking stability';
+      reason='You lost the target for too much of the round.';
+      correction='Stay on the target before adding speed. Make small mouse corrections instead of chasing it.';
+      task='Move Track';
+      routine='2 × 30s: keep the target centered, then increase speed only when you can stay connected.';
+      stop='When you start over-flicking or losing the target repeatedly.';
+      did=`${track.toFixed(1)}s of clean tracking`;
+      change='Smaller corrections + steadier follow';
+    }else if(consValue>0&&consValue<.62){
+      weakness='Tracking smoothness';
+      reason='Your control is working, but the rhythm is uneven.';
+      correction='Match the target with continuous movement. Avoid stop → snap → stop corrections.';
+      task='Move Track';
+      routine='3 × 20s: trace the target smoothly, then repeat at a slightly higher speed.';
+      stop='If your crosshair begins oscillating around the target.';
+      did=`${track.toFixed(1)}s tracked`;
+      change='Smooth the mouse path';
+    }else{
+      weakness='Movement reading';
+      reason='Your base control is stable; the next gain is reacting to direction changes.';
+      correction='Read the target path first, then move. Do not predict every reversal.';
+      task='Strafe Flick';
+      routine='3 × 30s: follow the strafe, then snap only when the direction changes.';
+      stop='If accuracy falls below 75%, reset the pace.';
+      did=`${track.toFixed(1)}s tracked`;
+      change='React to movement changes';
+      trend='CONTROLLED';
+    }
+  }else if(auto){
+    if(hp<45){
+      weakness='Headshot placement';
+      reason=`Only ${hp}% of landed shots were headshots.`;
+      correction='Raise your crosshair to head level before the next burst and keep the pull-down controlled.';
+      task='Spray Control';
+      routine='2 × 30s: first 8–10 bullets, focus on head-level start + smooth recoil correction.';
+      stop='When you start dragging past the target.';
+      did=`${hp}% headshot rate`;
+      change='Start higher + pull down smoothly';
+    }else if(acc<60){
+      weakness='Spray discipline';
+      reason=`You landed ${acc}% of shots, so speed is outrunning control.`;
+      correction='Use shorter bursts and reset your aim between engagements.';
+      task='Spray Transfer';
+      routine='3 × 20s: burst, release, transfer to the next bot, then repeat.';
+      stop='When misses spike after each transfer.';
+      did=`${acc}% bullet accuracy`;
+      change='Shorter bursts + cleaner reset';
+    }else{
+      weakness='Consistency under recoil';
+      reason='Your spray is landing; the next step is making that control repeatable.';
+      correction='Keep the first-bullet placement identical before working on longer sprays.';
+      task='Spray Control';
+      routine='3 × 30s: same starting crosshair position, same pull-down path, no panic corrections.';
+      stop='If the pattern starts feeling forced.';
+      did=`${acc}% accuracy · ${hp}% HS`;
+      change='Repeat the same recoil path';
+      trend='CONTROLLED';
+    }
+  }else if(tot===0){
+    weakness='First-shot setup';
+    reason='There was not enough data to establish a baseline.';
+    correction='Slow the first few reps down and make deliberate clicks.';
+    task=mode==='movetrack'?'Move Track':'Gridshot';
+    routine='2 × 30s: clean reps first, then increase pace only after accuracy stabilizes.';
+    stop='If you begin clicking before the crosshair is settled.';
+    did='No completed hits';
+    change='Build a clean baseline';
+  }else if(acc<60){
+    weakness='Accuracy';
+    reason=`${acc}% accuracy shows that pace is ahead of control.`;
+    correction='Stop trying to win the timer. Place the crosshair, confirm the target, then click.';
+    task=mode==='strafeshot'||mode==='strafeFlick'?'Move Track':'Gridshot';
+    routine='3 × 30s: aim for 80%+ accuracy before increasing speed.';
+    stop='When accuracy drops below 70% for two runs.';
+    did=`${acc}% accuracy`;
+    change='Accuracy first, speed second';
+  }else if(avgT>420 && bestT>0){
+    weakness='Reaction speed';
+    reason=`Your average reaction was ${avgT}ms, while your best was ${bestT}ms.`;
+    correction='Keep the crosshair closer to likely target lanes and reduce the pause before the click.';
+    task='Reflex';
+    routine='3 × 30s: stay relaxed, react on appearance, and do not pre-click.';
+    stop='If your accuracy falls more than 10 points while chasing speed.';
+    did=`${avgT}ms average reaction`;
+    change='Reduce hesitation';
+  }else if(consValue>0&&consValue<.62){
+    weakness='Consistency';
+    reason='Your reaction spread is wide, meaning some reps are much slower than others.';
+    correction='Use the same rhythm every rep instead of alternating slow and panic-fast clicks.';
+    task='Flicking';
+    routine='3 × 30s: one target at a time, identical setup before every click.';
+    stop='When your rhythm becomes rushed.';
+    did=`${Math.round(consValue*100)}% consistency`;
+    change='Use one repeatable rhythm';
+  }else if(kps<4){
+    weakness='Pace';
+    reason=`Your session averaged ${kps.toFixed(1)} kills/sec.`;
+    correction='Once the crosshair is placed, commit to the click instead of micro-correcting repeatedly.';
+    task='Speed Aim';
+    routine='2 × 45s: push pace while keeping accuracy above 70%.';
+    stop='If accuracy drops below 70%.';
+    did=`${kps.toFixed(1)} k/s`;
+    change='Commit faster after placement';
+  }else{
+    weakness='Target transitions';
+    reason='Your baseline is stable, so the next improvement is moving cleanly between targets.';
+    correction='Finish the shot, release tension, and transition immediately to the next target.';
+    task='Spider Shot';
+    routine='3 × 30s: prioritize clean transitions; do not over-correct after a hit.';
+    stop='When transitions become jerky.';
+    did=`${acc}% accuracy · ${kps.toFixed(1)} k/s`;
+    change='Cleaner target-to-target flow';
+    trend='STABLE';
+  }
+
+  return {task,reason,correction,routine,stop,weakness,did,change,trend};
+}
+
 // ══════════════════════════════════════
 // END GAME
 // ══════════════════════════════════════
@@ -1729,6 +2053,31 @@ function endGame(){
   $('rBest').textContent=bestT?bestT+'ms':'—';$('rCons').textContent=cons;$('rAcc').textContent=acc+'%';
   $('rGrade').textContent=grade;$('rRating').textContent=rating+' · '+gradeLabel;
 
+  // Adaptive coach diagnosis
+  const hs=G.hits?Math.round((G.heads||0)/G.hits*100):0;
+  const coach=buildCoach({acc,kps,avgT,consValue,bestT,tot,hp:hs});
+  const coachHistory=saveCoachHistory({mode:G.mode,acc,kps,avgT,score:G.score,at:Date.now()});
+  const previous=coachHistory.length>1?coachHistory[coachHistory.length-2]:null;
+  if(previous && previous.mode===G.mode){
+    const delta=acc-previous.acc;
+    if(Math.abs(delta)>=2){
+      coach.trend=delta>0?'IMPROVING':'NEEDS FOCUS';
+      coach.change += ` · ${delta>0?'+':''}${delta}% acc`;
+    }
+  }
+  $('rCoachTask').textContent='NEXT: '+coach.task;
+  $('rCoachCopy').textContent=coach.reason;
+  $('rWeakness').textContent=coach.weakness;
+  $('rWeaknessWhy').textContent=coach.reason;
+  $('rCorrection').textContent='Correction';
+  $('rCorrectionText').textContent=coach.correction;
+  $('rRoutine').textContent='Practice routine';
+  $('rRoutineText').textContent=coach.routine;
+  $('rDid').textContent=coach.did;
+  $('rChange').textContent=coach.change;
+  $('rStop').textContent=coach.stop;
+  $('rTrend').textContent=coach.trend;
+
   // Analysis
   const parts=[];
   if(bestT>0&&G.mode!=='tracking'){
@@ -1760,11 +2109,13 @@ function endGame(){
   else if(avgT>420&&G.mode!=='tracking')focus='Your crosshair control is solid. Train <span>faster target transitions</span> with Flicking or Reflex next.';
   else if(consValue>0&&consValue<.62)focus='You have the mechanics—now smooth out your rhythm. Focus on <span>consistent target-to-target pacing</span>.';
   else if(G.mode==='tracking')focus='Great control. Raise Tracking Speed in Settings for a harder <span>movement-reading challenge</span>.';
+  else if(G.mode==='movetrack')focus='Keep the target connected with smooth mouse movement. Once you can hold it comfortably, increase <span>tracking speed</span>.';
+  else if(G.mode==='strafeFlick')focus='Read the strafe, then snap on the direction change. Avoid predicting the reversal too early—build <span>reaction discipline</span>.';
   else focus='Strong session. Try <span>Spider Shot</span> or a longer round to turn this into repeatable match-ready aim.';
   $('rFocus').innerHTML=focus;
 
   // Perf bars
-  const paceGoal={gridshot:8,flicking:6,microshot:4,speed:7,scatter:9,tracking:8,strafeshot:5,spidershot:7,switchshot:6,reflex:5}[G.mode]||6;
+  const paceGoal={gridshot:8,flicking:6,microshot:4,speed:7,scatter:9,tracking:8,strafeshot:5,movetrack:7,strafeFlick:5,spidershot:7,switchshot:6,reflex:5}[G.mode]||6;
   const reactionValue=avgT>0?Math.max(0,Math.min(1,1-(avgT-100)/600)):0;
   const controlValue=consValue||Math.min(G.bestStreak/8,1);
   const bars=[{n:'Pace',v:Math.min(kps/paceGoal,1),c:'#ff4655'},{n:'Accuracy',v:acc/100,c:'#48dbfb'},{n:'Reaction',v:reactionValue,c:'#ff9f43'},{n:'Control',v:controlValue,c:'#00d2d3'}];
@@ -1798,7 +2149,7 @@ function endGame(){
 $('btnRetry').addEventListener('click',()=>{
   hide('resultScreen');
   S.sens=parseFloat($('sensInput').value)||0.4;
-  Object.assign(G,{running:false,paused:false,timeLeft:dur,dur,score:0,hits:0,misses:0,streak:0,bestStreak:0,reactTimes:[],lastHit:0,yaw:0,pitch:0,targets:[],effects:[],tracers:[],pt:0,bloom:0});
+  Object.assign(G,{running:false,paused:false,timeLeft:dur,dur,score:0,hits:0,misses:0,streak:0,bestStreak:0,reactTimes:[],lastHit:0,yaw:0,pitch:0,targets:[],effects:[],tracers:[],pt:0,bloom:0,trackTime:0});
   gsStarted=false;isLocked=false;
   show('gc');show('hud');show('badge');
   $('badge').textContent=modeLabel(G.mode).toUpperCase();
@@ -1811,6 +2162,116 @@ $('btnMenu').addEventListener('click',()=>{
   hide('resultScreen');selectMenuTab('training');show('menuScreen');
   $('menuScreen').scrollTo({top:0,behavior:'smooth'});
 });
+$('btnCoachNext').addEventListener('click',()=>{
+  const label=($('rCoachTask').textContent||'').replace(/^NEXT:\s*/,'').trim();
+  const target=[...document.querySelectorAll('.mc')].find(c=>modeLabel(c.dataset.m).toUpperCase()===label.toUpperCase());
+  if(target){
+    document.querySelectorAll('.mc').forEach(x=>x.classList.remove('on'));
+    target.classList.add('on');
+    selMode=target.dataset.m;
+    target.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  }
+  hide('resultScreen');
+  selectMenuTab('training');
+  show('menuScreen');
+  $('menuScreen').scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>{ if(target) target.animate([{boxShadow:'0 0 0 rgba(255,70,85,0)'},{boxShadow:'0 0 38px rgba(255,70,85,.5)'},{boxShadow:'0 0 0 rgba(255,70,85,0)'}],{duration:900}); },180);
+});
+
 </script>
 </body>
 </html>
+<style>
+/* Flickrx premium finishing pass */
+.training-intro{box-shadow:0 18px 70px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.045);backdrop-filter:blur(18px);}
+.start-btn{filter:drop-shadow(0 12px 28px rgba(255,70,85,.16));}
+.start-btn:hover{filter:drop-shadow(0 18px 38px rgba(255,70,85,.25));}
+.mgrid .mc{contain:layout paint;}
+.mgrid .mc:active{transform:translateY(-2px) scale(.985);}
+</style>
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   FLICKRX ELITE MOTION PASS
+   ═══════════════════════════════════════════════════════════ */
+:root{--fx-red:#ff4655;--fx-cyan:#48dbfb;--fx-green:#00ff9d;}
+
+@keyframes fxFloat{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-6px,0)}}
+@keyframes fxShimmer{0%{background-position:-220% 0}100%{background-position:220% 0}}
+@keyframes fxBorder{0%,100%{opacity:.35;transform:scale(.985)}50%{opacity:.8;transform:scale(1)}}
+@keyframes fxGlow{0%,100%{box-shadow:0 0 0 rgba(255,70,85,0)}50%{box-shadow:0 0 34px rgba(255,70,85,.16)}}
+@keyframes fxIn{from{opacity:0;transform:translateY(18px) scale(.985);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+@keyframes fxPulseLine{0%,100%{opacity:.35;transform:scaleX(.55)}50%{opacity:1;transform:scaleX(1)}}
+
+.menu-inner,.rc{animation:fxIn .65s cubic-bezier(.16,1,.3,1) both}
+.training-intro,.menu-card{position:relative;overflow:hidden}
+.training-intro::after,.menu-card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 28%,rgba(255,255,255,.035) 45%,transparent 62%);
+  background-size:220% 100%;animation:fxShimmer 7s linear infinite;
+}
+.mgrid .mc{animation:fxIn .55s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i,0) * 35ms);}
+.mgrid .mc:nth-child(1){--i:1}.mgrid .mc:nth-child(2){--i:2}.mgrid .mc:nth-child(3){--i:3}.mgrid .mc:nth-child(4){--i:4}
+.mgrid .mc:nth-child(5){--i:5}.mgrid .mc:nth-child(6){--i:6}.mgrid .mc:nth-child(7){--i:7}.mgrid .mc:nth-child(8){--i:8}
+.mgrid .mc:nth-child(9){--i:9}.mgrid .mc:nth-child(10){--i:10}.mgrid .mc:nth-child(11){--i:11}.mgrid .mc:nth-child(12){--i:12}
+.mgrid .mc:nth-child(13){--i:13}.mgrid .mc:nth-child(14){--i:14}
+
+.mgrid .mc:hover{transform:translateY(-7px);box-shadow:0 16px 34px rgba(0,0,0,.35),0 0 22px rgba(255,70,85,.08)}
+.mgrid .mc.on{animation:fxGlow 2.2s ease-in-out infinite}
+.start-btn,.coach-btn{position:relative;overflow:hidden}
+.start-btn::after,.coach-btn::after{
+  content:"";position:absolute;top:0;bottom:0;width:34%;
+  transform:skewX(-18deg) translateX(-180%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);
+  animation:fxShimmer 3.4s linear infinite;
+}
+.hb{transition:transform .25s ease,filter .25s ease}
+.hb:hover{transform:translateY(-2px);filter:brightness(1.12)}
+#timerBar{box-shadow:0 0 14px rgba(255,70,85,.28);transition:width .18s linear}
+#badge{backdrop-filter:blur(12px);box-shadow:0 10px 35px rgba(0,0,0,.3)}
+
+.result-summary,.ra,.coach-card,.coach-strip,.sg,.ac-sec,.nr,.brow{animation:fxIn .55s cubic-bezier(.16,1,.3,1) both}
+.result-summary{animation-delay:.04s}.ra{animation-delay:.08s}.coach-card{animation-delay:.12s}.coach-strip{animation-delay:.16s}
+.sg{animation-delay:.2s}.ac-sec{animation-delay:.24s}.nr{animation-delay:.28s}.brow{animation-delay:.32s}
+
+.coach-diagnosis{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:13px 0 14px;
+}
+.diag{
+  min-height:76px;padding:11px 12px;border-radius:12px;
+  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
+  border:1px solid rgba(255,255,255,.06);
+  display:flex;gap:9px;align-items:flex-start;
+  transition:transform .25s ease,border-color .25s ease,background .25s ease;
+}
+.diag:hover{transform:translateY(-3px);border-color:rgba(255,70,85,.24);background:rgba(255,70,85,.045)}
+.diag-icon{
+  width:25px;height:25px;display:grid;place-items:center;border-radius:8px;
+  color:#ff7280;background:rgba(255,70,85,.08);font-size:.72rem;flex:none;
+}
+.diag b{display:block;font-size:.62rem;letter-spacing:.7px;text-transform:uppercase;color:#dce4fa;margin-bottom:5px}
+.diag small{display:block;font-size:.57rem;line-height:1.5;color:#75819d}
+
+.coach-strip{
+  margin-top:12px;padding:14px 15px;border-radius:13px;
+  border:1px solid rgba(72,219,251,.09);
+  background:linear-gradient(145deg,rgba(72,219,251,.035),rgba(255,255,255,.015));
+}
+.coach-strip-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.coach-strip-head span{font-size:.52rem;font-weight:900;letter-spacing:1.7px;color:#65728e}
+.coach-strip-head i{font-size:.48rem;font-style:normal;font-weight:900;letter-spacing:1.4px;color:#48dbfb}
+.coach-strip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.coach-strip-grid div{padding:8px 9px;border-left:1px solid rgba(255,255,255,.08)}
+.coach-strip-grid span{display:block;font-size:.45rem;letter-spacing:1px;color:#58657f;margin-bottom:4px}
+.coach-strip-grid b{display:block;font-size:.57rem;line-height:1.35;color:#bdc7df}
+
+@media(max-width:700px){
+  .coach-diagnosis{grid-template-columns:1fr}
+  .coach-strip-grid{grid-template-columns:1fr}
+}
+
+/* subtle training-space energy */
+#gc{filter:saturate(1.04) contrast(1.02)}
+#fov{transition:opacity .2s ease,background .25s ease}
+#sPop{transform:translateZ(0);transition:opacity .12s ease,transform .12s ease}
+</style>
