@@ -495,6 +495,48 @@ kbd{background:var(--bg3);border:1px solid var(--border2);padding:3px 8px;border
   #menuScreen::before,#menuScreen::after,.menu-inner,.mgrid .mc,.start-btn::after{animation:none!important;}
 }
 
+
+/* ══ SMOOTH UI MOTION (calm, no flashing) ══ */
+@keyframes scrIn{from{opacity:0}to{opacity:1}}
+@keyframes riseIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#menuScreen:not(.hidden),#resultScreen:not(.hidden){animation:scrIn .4s ease both;scroll-behavior:smooth;}
+#clickOverlay:not(.hidden){animation:scrIn .3s ease both;}
+#resultScreen:not(.hidden) .sb{animation:riseIn .5s cubic-bezier(.22,1,.36,1) both;}
+#resultScreen .sb:nth-child(1){animation-delay:.05s}#resultScreen .sb:nth-child(2){animation-delay:.1s}
+#resultScreen .sb:nth-child(3){animation-delay:.15s}#resultScreen .sb:nth-child(4){animation-delay:.2s}
+#resultScreen .sb:nth-child(5){animation-delay:.25s}#resultScreen .sb:nth-child(6){animation-delay:.3s}
+.start-btn,.btn-p,.btn-s,.tbtn,.co-lock-btn{transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .25s ease,background .25s ease,border-color .25s ease,color .25s ease;}
+.start-btn:active,.btn-p:active,.btn-s:active,.tbtn:active,.co-lock-btn:active{transform:scale(.97);}
+select.si,input[type=number]{transition:border-color .25s ease,box-shadow .25s ease;}
+select.si:focus,input[type=number]:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(255,70,85,.12);}
+input[type=range]::-webkit-slider-thumb{transition:transform .15s cubic-bezier(.22,1,.36,1),box-shadow .2s ease;}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.15);}
+@media(prefers-reduced-motion:reduce){#menuScreen,#resultScreen,#clickOverlay,#resultScreen .sb{animation:none!important;}}
+
+/* ══ COOL MOTION PACK ══ */
+@keyframes pop{0%{scale:1}35%{scale:1.22;color:#fff;text-shadow:0 0 18px rgba(255,70,85,.7)}100%{scale:1}}
+@keyframes spin{from{scale:.6;filter:blur(3px)}60%{scale:1.12;filter:none}to{scale:1}}
+@keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes breathe{0%,100%{filter:drop-shadow(0 0 10px rgba(255,70,85,.25))}50%{filter:drop-shadow(0 0 22px rgba(255,70,85,.45))}}
+@keyframes sheen{from{transform:translateX(-120%) skewX(-20deg)}to{transform:translateX(260%) skewX(-20deg)}}
+.hb-val.pop,#hScore.pop{display:inline-block;animation:pop .28s cubic-bezier(.34,1.56,.64,1);}
+#sPop.spin{animation:spin .35s cubic-bezier(.34,1.56,.64,1);}
+.hb{transition:transform .3s cubic-bezier(.22,1,.36,1),border-color .3s ease,box-shadow .3s ease;}
+.logo{animation:breathe 4s ease-in-out infinite;}
+.menu-pane.active>*{animation:cardIn .55s cubic-bezier(.22,1,.36,1) both;}
+.menu-pane.active>*:nth-child(2){animation-delay:.06s}.menu-pane.active>*:nth-child(3){animation-delay:.12s}
+.menu-pane.active>*:nth-child(4){animation-delay:.18s}.menu-pane.active>*:nth-child(5){animation-delay:.24s}
+.mc{transition:transform .35s cubic-bezier(.22,1,.36,1),border-color .3s ease,box-shadow .35s ease,background .3s ease;}
+.mc:active{transform:translateY(-2px) scale(.985);}
+.mc .mc-icon{transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+.mc:hover .mc-icon,.mc.on .mc-icon{transform:translateY(-3px) scale(1.12);}
+.start-btn{overflow:hidden;position:relative;}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(255,70,85,.4);}
+.start-btn:hover::before{opacity:1;}
+.toggle-thumb{transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .25s ease,box-shadow .25s ease!important;}
+.cp{transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s ease;}.cp:hover{transform:scale(1.15);}
+body[data-anim=calm] .logo,body[data-anim=calm] .menu-pane.active>*,body[data-anim=calm] #sPop.spin,body[data-anim=calm] .hb-val.pop{animation:none!important;}
+body[data-anim=off] *,body[data-anim=off] *::before,body[data-anim=off] *::after{animation:none!important;transition-duration:.01s!important;}
 </style>
 </head>
 <body>
@@ -612,6 +654,22 @@ kbd{background:var(--bg3);border:1px solid var(--border2);padding:3px 8px;border
       <div class="si-item">
         <div class="si-label">Background</div>
         <select class="si" id="bgSt"><option value="wall" selected>Practice Range Wall</option><option value="dark">Dark Grid</option><option value="space">Deep Space</option><option value="arena">Arena</option><option value="minimal">Minimal</option></select>
+      </div>
+      <div class="si-item">
+        <div class="si-label">Wall Pattern</div>
+        <select class="si" id="wallPat"><option value="checker" selected>Checker</option><option value="subtle">Soft Checker (easy on eyes)</option><option value="plain">Plain (no pattern)</option></select>
+      </div>
+      <div class="si-item">
+        <div class="si-label">Wall Contrast</div>
+        <div class="rw"><input type="range" id="wallC" min="0" max="1" step="0.05" value="0.5"/><div class="rv" id="wallCV">50%</div></div>
+      </div>
+      <div class="si-item">
+        <div class="si-label">Wall Brightness</div>
+        <div class="rw"><input type="range" id="wallBr" min="0.5" max="1.5" step="0.05" value="1"/><div class="rv" id="wallBrV">100%</div></div>
+      </div>
+      <div class="si-item">
+        <div class="si-label">UI Animations</div>
+        <select class="si" id="animLvl"><option value="cool" selected>Cool (smooth + effects)</option><option value="calm">Calm (gentle)</option><option value="off">Off</option></select>
       </div>
     </div>
   </div>
@@ -953,7 +1011,7 @@ function calcRank(acc,kps,avgT,mode){
 const S={
   sens:.4,fov:103,invPitch:false,
   tCol:'#ff4655',tShape:'bot',tSzMul:1,tSpdMul:1,
-  bgSt:'dark',glow:1.2,ptcl:true,pCnt:14,trcr:true,rpl:true,flsh:true,shMiss:true,sPop2:true,botA:false,
+  bgSt:'wall',wallPat:'checker',wallC:.5,wallBr:1,glow:1.2,ptcl:true,pCnt:14,trcr:true,rpl:true,flsh:true,shMiss:true,sPop2:true,botA:false,
   xCol:'#00ffaa',xSt:'classic',xLen:9,xGap:4,xThk:1.5,xGlw:true,xOpa:1,xDyn:false,
 };
 
@@ -1007,6 +1065,11 @@ wire('invPitch','invPitch');
 wire('ptcl','ptcl');wire('trcr','trcr');wire('rpl','rpl');wire('flsh','flsh');wire('shMiss','shMiss');wire('sPop2','sPop2');wire('botA','botA');
 wire('xGlw','xGlw','bool',xp);wire('xDyn','xDyn');
 wire('xSt','xSt','str',xp);
+wire('wallPat','wallPat','str');
+$('animLvl').addEventListener('change',()=>{document.body.dataset.anim=$('animLvl').value;});document.body.dataset.anim='cool';
+wire('wallC','wallC','num',()=>{$('wallCV').textContent=Math.round(S.wallC*100)+'%';updateRange('wallC',S.wallC,0,1);});
+wire('wallBr','wallBr','num',()=>{$('wallBrV').textContent=Math.round(S.wallBr*100)+'%';updateRange('wallBr',S.wallBr,.5,1.5);});
+updateRange('wallC',S.wallC,0,1);updateRange('wallBr',S.wallBr,.5,1.5);
 
 $('tCol').addEventListener('input',()=>{S.tCol=$('tCol').value;});
 document.querySelectorAll('.cp[data-c]').forEach(c=>{
@@ -1445,11 +1508,12 @@ function onHit(t,sx,sy,sr){
     el.textContent=lb;
     el.style.color=G.streak>=6?'#ffd700':'#fff';
     el.style.textShadow=`0 0 40px ${G.streak>=6?'#ffd700':'#ff4655'},0 0 80px ${G.streak>=6?'#ffd70040':'#ff465540'}`;
-    el.style.opacity='1';clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity='0',800);
+    popEl(el,'spin');el.style.opacity='1';clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity='0',800);
   }
 
   if(S.ptcl)spawnParticles(sx,sy,sr);
-  if(S.rpl)spawnRipple(sx,sy,sr);
+  if(S.rpl){spawnRipple(sx,sy,sr);if(document.body.dataset.anim==='cool')setTimeout(()=>{if(G.running)spawnRipple(sx,sy,sr*1.7);},70);}
+  popEl($('hScore'),'pop');
   if(S.sPop2)addFX({type:'txt',x:sx,y:sy-sr-10,vy:-1.8,life:1,dc:.024,label:'+'+pts,col:'#ffdd55'});
 
   const mode=G.mode,i=G.targets.indexOf(t);
@@ -1647,9 +1711,91 @@ function draw(dt){
   if(S.botA)drawAssist();
 }
 
+
+// ══════════════════════════════════════
+// PRACTICE RANGE ROOM (real 3D, uses the same camera as targets)
+// ══════════════════════════════════════
+const RM={X:16,Z:18,Y0:-3.5,Y1:6.5,NEAR:.15};
+let _rc=null;
+const easeOutBack=x=>{const c1=1.4,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2);};
+const rgbA=a=>`rgb(${a[0]|0},${a[1]|0},${a[2]|0})`;
+function rcam(){
+  const yr=(G.yaw+(G.rcY||0))*Math.PI/180,pr=(G.pitch+(G.rcP||0))*Math.PI/180;
+  _rc={cy:Math.cos(yr),sy:Math.sin(yr),cp:Math.cos(pr),sp:Math.sin(pr),f:fl(),hw:canvas.width/2,hh:canvas.height/2};
+}
+function rtv(x,y,z){
+  const c=_rc,rx=x*c.cy-z*c.sy,rz=x*c.sy+z*c.cy;
+  return [rx,y*c.cp-rz*c.sp,y*c.sp+rz*c.cp];
+}
+function rPoly(vs){
+  const N=RM.NEAR;let out=vs,behind=false;
+  for(const v of vs)if(v[2]<N){behind=true;break;}
+  if(behind){
+    out=[];
+    for(let i=0;i<vs.length;i++){
+      const a=vs[i],b=vs[(i+1)%vs.length],ia=a[2]>=N,ib=b[2]>=N;
+      if(ia)out.push(a);
+      if(ia!==ib){const t=(N-a[2])/(b[2]-a[2]);out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,N]);}
+    }
+    if(out.length<3)return;
+  }
+  const c=_rc;
+  for(let i=0;i<out.length;i++){
+    const v=out[i],x=v[0]/v[2]*c.f+c.hw,y=-v[1]/v[2]*c.f+c.hh;
+    i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+  }
+  ctx.closePath();
+}
+function rSurf(o,u,v,nu,nv,base,dark){
+  const rows=[];
+  for(let j=0;j<=nv;j++){const r=[];for(let i=0;i<=nu;i++)r.push(rtv(o[0]+u[0]*i+v[0]*j,o[1]+u[1]*i+v[1]*j,o[2]+u[2]*i+v[2]*j));rows.push(r);}
+  ctx.fillStyle=rgbA(base);ctx.beginPath();
+  rPoly([rows[0][0],rows[0][nu],rows[nv][nu],rows[nv][0]]);ctx.fill();
+  if(dark>=.999)return;
+  ctx.fillStyle=rgbA(base.map(c=>c*dark));ctx.beginPath();
+  for(let j=0;j<nv;j++)for(let i=j&1;i<nu;i+=2)rPoly([rows[j][i],rows[j][i+1],rows[j+1][i+1],rows[j+1][i]]);
+  ctx.fill();
+}
+function rFace(o,du,dv,base,dark){
+  const nu=Math.max(1,Math.round(Math.hypot(du[0],du[1],du[2])/2)),nv=Math.max(1,Math.round(Math.hypot(dv[0],dv[1],dv[2])/2));
+  rSurf(o,[du[0]/nu,du[1]/nu,du[2]/nu],[dv[0]/nv,dv[1]/nv,dv[2]/nv],nu,nv,base,dark);
+}
+function rBox(x0,x1,y0,y1,z0,z1,side,top,dark){
+  const dx=x1-x0,dy=y1-y0,dz=z1-z0;
+  if(z0>0)rFace([x0,y0,z0],[dx,0,0],[0,dy,0],side,dark);
+  if(z1<0)rFace([x0,y0,z1],[dx,0,0],[0,dy,0],side,dark);
+  if(x0>0)rFace([x0,y0,z0],[0,0,dz],[0,dy,0],side.map(c=>c*.9),dark);
+  if(x1<0)rFace([x1,y0,z0],[0,0,dz],[0,dy,0],side.map(c=>c*.9),dark);
+  if(y1<0)rFace([x0,y1,z0],[dx,0,0],[0,0,dz],top,dark);
+}
+function drawRoom(W,H){
+  rcam();
+  const{X,Z,Y0,Y1}=RM,k=S.wallBr;
+  const dk=S.wallPat==='plain'?1:1-.38*S.wallC*(S.wallPat==='subtle'?.5:1);
+  const C=(c,s)=>[c[0]*k*s,c[1]*k*s,c[2]*k*s];
+  const WALL=[92,94,100],FLOOR=[120,122,128],CEIL=[142,144,150],LSIDE=[108,110,116],LTOP=[134,136,142];
+  ctx.fillStyle='#202127';ctx.fillRect(0,0,W,H);
+  rSurf([-X,Y1,-Z],[2,0,0],[0,0,2],16,18,C(CEIL,1),dk);
+  rSurf([-X,Y0,-Z],[2,0,0],[0,0,2],16,18,C(FLOOR,1),dk);
+  rSurf([-X,Y0,Z],[2,0,0],[0,2,0],16,5,C(WALL,1),dk);
+  rSurf([-X,Y0,-Z],[2,0,0],[0,2,0],16,5,C(WALL,.8),dk);
+  rSurf([-X,Y0,-Z],[0,0,2],[0,2,0],18,5,C(WALL,.88),dk);
+  rSurf([X,Y0,-Z],[0,0,2],[0,2,0],18,5,C(WALL,.88),dk);
+  const lt=Y0+1.6,ls=C(LSIDE,1),lp=C(LTOP,1);
+  rBox(-X,X,Y0,lt,Z-3.5,Z,ls,lp,dk);
+  rBox(-X,X,Y0,lt,-Z,-Z+3.5,ls,lp,dk);
+  rBox(-X,-X+3.5,Y0,lt,-Z+3.5,Z-3.5,ls,lp,dk);
+  rBox(X-3.5,X,Y0,lt,-Z+3.5,Z-3.5,ls,lp,dk);
+  rBox(7,10,lt,lt+1.8,Z-3,Z-.8,ls,lp,dk);
+  const vg=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);
+  vg.addColorStop(0,'rgba(6,7,16,0)');vg.addColorStop(1,'rgba(6,7,16,.45)');
+  ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+}
+
 let _bgKey='',_bgOff=null;
 function drawBG(W,H){
   const hor=H/2+fl()*Math.tan((G.pitch+(G.rcP||0))*Math.PI/180),st=S.bgSt;
+  if(st==='wall'){drawRoom(W,H);return;}
 
   if(st==='minimal'){
     ctx.fillStyle='#06070f';ctx.fillRect(0,0,W,H);return;
@@ -1760,7 +1906,8 @@ function drawTgt(t){
 function drawTgt0(t){
   if(!t._p)return;
   const{sx,sy,scl}=t._p;
-  const sc=Math.min(t.sc||0,1);if(sc<=0)return;
+  const sc0=Math.min(t.sc||0,1);if(sc0<=0)return;
+  const sc=easeOutBack(sc0);
   const age=(performance.now()-t.st)/1000;
   const r=t.wr*scl*sc*(1+Math.sin(age*5)*.022);
   const col=S.tCol,gi=S.glow;
@@ -1860,8 +2007,15 @@ function shiftCol(h,a){const[r,g,b]=hex2rgb(h);return`rgb(${Math.max(0,Math.min(
 // ══════════════════════════════════════
 // HUD
 // ══════════════════════════════════════
+let _hs=0;
+(function hudTween(){const g=G.score;if(_hs!==g){_hs+=(g-_hs)*.22;if(Math.abs(g-_hs)<1)_hs=g;$('hScore').textContent=Math.round(_hs);}requestAnimationFrame(hudTween);})();
+function popEl(el,cls){el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);}
+function countUp(id,to,dec=0,suf='',ms=900){
+  const el=$(id);if(!el||!isFinite(to))return;const t0=performance.now();
+  (function s(n){const k=Math.min(1,(n-t0)/ms),e=1-Math.pow(1-k,3);el.textContent=(to*e).toFixed(dec)+suf;if(k<1)requestAnimationFrame(s);})(t0);
+}
 function updateHUD(){
-  $('hScore').textContent=G.score;
+  if(G.score<_hs){_hs=G.score;$('hScore').textContent=G.score;}
   $('hStreak').textContent='Streak '+G.streak;
   $('hTime').textContent=Math.ceil(G.timeLeft);
   const tot=G.hits+G.misses;
@@ -2047,7 +2201,7 @@ function endGame(){
   $('rpFill').style.background=rc;
 
   // Stats
-  $('rScore').textContent=G.score;$('rKPS').textContent=kps.toFixed(2);
+  $('rScore').textContent=G.score;countUp('rScore',G.score);countUp('rHits',G.hits);countUp('rMiss',G.misses);countUp('rStrk',G.bestStreak);$('rKPS').textContent=kps.toFixed(2);
   $('rHits').textContent=G.hits;$('rMiss').textContent=G.misses;
   $('rStrk').textContent=G.bestStreak;$('rAvg').textContent=avgT?avgT+'ms':'—';
   $('rBest').textContent=bestT?bestT+'ms':'—';$('rCons').textContent=cons;$('rAcc').textContent=acc+'%';
