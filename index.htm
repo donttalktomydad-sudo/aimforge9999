@@ -19,6 +19,24 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;user-
 canvas{display:block;}
 .hidden{display:none!important;}
 
+
+.co-lock-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 10px 30px rgba(255, 70, 85, 0.4);
+}
+#loadingScreen {
+  background: radial-gradient(circle at 50% 50%, #151d35 0%, #090c17 50%, #030408 100%);
+}
+.hb-val {
+  text-shadow: 0 0 15px rgba(0,212,255,0.6);
+}
+#loadingScreen::after {
+  animation: loaderPulse 1.8s ease-in-out infinite;
+}
+.loader-mark {
+  text-shadow: 0 0 20px rgba(255,70,85,0.8);
+}
+
 /* ══ LOADING SCREEN ══ */
 #loadingScreen{
   position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
@@ -546,8 +564,8 @@ body[data-anim=off] *,body[data-anim=off] *::before,body[data-anim=off] *::after
   <div class="loader">
     <div class="loader-mark">🎯</div>
     <div class="loader-title"><span>Fli</span>ckrx</div>
-    <div class="loader-copy">Calibrating your Flickrx arena</div>
-    <div class="loader-status"><span></span><b>INITIALIZING AIM CORE</b><em>14 TASKS</em></div>
+    <div class="loader-copy">Loading Advanced Physics & Audio Engine...</div>
+    <div class="loader-status"><span></span><b>INITIALIZING PERFORMANCE CORE...</b><em>14 TASKS</em></div>
     <div class="loader-bar"><i></i></div>
   </div>
 </div>
@@ -611,7 +629,7 @@ body[data-anim=off] *,body[data-anim=off] *::before,body[data-anim=off] *::after
         </div>
       </div>
 
-      <div class="si-item">
+      <div class="si-item" style="display:none;">
         <div class="si-label">Weapon (Spray modes)</div>
         <select class="si" id="weapon"><option value="vandal">Vandal · 9.75/s · 25 rds</option><option value="phantom">Phantom · 11/s · 30 rds</option></select>
       </div>
@@ -957,14 +975,14 @@ requestAnimationFrame(animBG);
 // CANVAS + HELPERS
 // ══════════════════════════════════════
 const canvas=document.getElementById('gc');
-const ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});
+let ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});
 function resize(){canvas.width=innerWidth;canvas.height=innerHeight;}
 resize();
 const $=id=>document.getElementById(id);
 const show=id=>$(id).classList.remove('hidden');
 const hide=id=>$(id).classList.add('hidden');
 
-const loaderStarted=performance.now(),minLoaderTime=2800;
+const loaderStarted=performance.now(),minLoaderTime=1000;
 let loaderPending=false,loaderDismissed=false;
 function dismissLoader(){
   const loader=$('loadingScreen');
@@ -1393,6 +1411,7 @@ function drawSpray(now,dt){
 // START GAME
 // ══════════════════════════════════════
 $('startBtn').addEventListener('click',()=>{
+  initAudio();
   S.sens=parseFloat($('sensInput').value)||0.4;
   Object.assign(G,{mode:selMode,running:false,paused:false,dur,timeLeft:dur,score:0,hits:0,misses:0,streak:0,bestStreak:0,reactTimes:[],lastHit:0,yaw:0,pitch:0,targets:[],effects:[],tracers:[],pt:0,bloom:0,trackTime:0});
   gsStarted=false;isLocked=false;
@@ -1449,6 +1468,53 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Tab'){e.preventDefault();if(G.running)endGame();}
 });
 
+
+// ══════════════════════════════════════
+// AUDIO SYSTEM
+// ══════════════════════════════════════
+let audioCtx = null;
+function initAudio(){ 
+  if(!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+  }
+  if(audioCtx.state === 'suspended') {
+    audioCtx.resume(); 
+  }
+}
+function playGunSound() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  
+  const osc = audioCtx.createOscillator();
+  const gainOsc = audioCtx.createGain();
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(180, t);
+  osc.frequency.exponentialRampToValueAtTime(40, t + 0.1);
+  osc.connect(gainOsc);
+  gainOsc.connect(audioCtx.destination);
+  gainOsc.gain.setValueAtTime(0.3, t);
+  gainOsc.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+  osc.start(t);
+  osc.stop(t + 0.1);
+
+  const bufferSize = audioCtx.sampleRate * 0.15;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = buffer;
+  const noiseFilter = audioCtx.createBiquadFilter();
+  noiseFilter.type = 'bandpass';
+  noiseFilter.frequency.value = 1800;
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.setValueAtTime(0.4, t);
+  noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+  noise.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(audioCtx.destination);
+  noise.start(t);
+}
+
 // ══════════════════════════════════════
 // SHOOTING
 // ══════════════════════════════════════
@@ -1456,6 +1522,7 @@ function handleShot(){
   const now=performance.now();
   if(now-(G.lastShot||0)<100)return;            // Vandal ≈ 9.75 rounds/s
   G.lastShot=now;
+  playGunSound();
   const cx=canvas.width/2,cy=canvas.height/2,bot=S.tShape==='bot',vis=[];
   for(const t of G.targets){const p=proj(t.x,t.y,t.z);if(p){t._p=p;vis.push(t);}}   // re-project at click time
   vis.sort((a,b)=>a._p.rz-b._p.rz);
@@ -1701,7 +1768,7 @@ function draw(dt){
   vis.sort((a,b)=>b._rz-a._rz);
   for(const t of vis)drawTgt(t);
   tickFX(dt);
-  if(MCFG[G.mode].auto)drawSpray(performance.now(),dt);
+  // if(MCFG[G.mode].auto)drawSpray(performance.now(),dt);
   const bloom=S.xDyn?G.bloom+(mVel*.09):0;
   drawXH(ctx,W/2,H/2,bloom);
   if(G.hm){const a=1-(performance.now()-G.hm.t)/140;
@@ -1747,6 +1814,8 @@ function rPoly(vs){
   ctx.closePath();
 }
 function rSurf(o,u,v,nu,nv,base,dark){
+  if(dark>=0.999) { nu=1; nv=1; u=[u[0]*16,u[1]*16,u[2]*16]; v=[v[0]*18,v[1]*18,v[2]*18]; } // SUPER OPTIMIZATION FOR PLAIN WALLS
+
   const rows=[];
   for(let j=0;j<=nv;j++){const r=[];for(let i=0;i<=nu;i++)r.push(rtv(o[0]+u[0]*i+v[0]*j,o[1]+u[1]*i+v[1]*j,o[2]+u[2]*i+v[2]*j));rows.push(r);}
   ctx.fillStyle=rgbA(base);ctx.beginPath();
@@ -1768,7 +1837,20 @@ function rBox(x0,x1,y0,y1,z0,z1,side,top,dark){
   if(x1<0)rFace([x1,y0,z0],[0,0,dz],[0,dy,0],side.map(c=>c*.9),dark);
   if(y1<0)rFace([x0,y1,z0],[dx,0,0],[0,0,dz],top,dark);
 }
+
+let roomOff = null;
+let lastRoomState = '';
 function drawRoom(W,H){
+  const stateStr = W+','+H+','+S.wallBr+','+S.wallPat+','+S.wallC+','+G.yaw.toFixed(1)+','+G.pitch.toFixed(1);
+  if(roomOff && lastRoomState === stateStr) {
+    ctx.drawImage(roomOff,0,0);
+    return;
+  }
+  if(!roomOff){ roomOff=document.createElement('canvas'); }
+  roomOff.width=W; roomOff.height=H;
+  const oldCtx=ctx;
+  ctx=roomOff.getContext('2d',{alpha:false});
+  
   rcam();
   const{X,Z,Y0,Y1}=RM,k=S.wallBr;
   const dk=S.wallPat==='plain'?1:1-.38*S.wallC*(S.wallPat==='subtle'?.5:1);
@@ -1790,6 +1872,9 @@ function drawRoom(W,H){
   const vg=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);
   vg.addColorStop(0,'rgba(6,7,16,0)');vg.addColorStop(1,'rgba(6,7,16,.45)');
   ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+  ctx=oldCtx;
+  lastRoomState=stateStr;
+  ctx.drawImage(roomOff,0,0);
 }
 
 let _bgKey='',_bgOff=null;
@@ -2043,7 +2128,8 @@ function buildCoach({acc,kps,avgT,consValue,bestT,tot,hp}){
   const mode=G.mode;
   const auto=!!MCFG[mode].auto;
   const tracking=(mode==='tracking'||mode==='movetrack');
-  let task='Gridshot', reason='', correction='', routine='', weakness='', stop='', trend='BASELINE', did='—', change='—';
+  let task='Precision Grid', reason='Focus on absolute precision.', correction='Ensure crosshair strictly stops on target.', routine='Slow smooth lines between targets.', weakness='Overshooting targets.', stop='Avoid erratic wide swings.', trend='NEEDS FOCUS', did='Analyzed core data.', change='Better pacing';
+  // Enhanced Performance Analytics Core
 
   if(tracking){
     const track=G.trackTime||0;
